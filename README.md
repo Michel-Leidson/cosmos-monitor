@@ -1,2 +1,2 @@
-# Celestia
-Celestia collect platform
+# Bot
+
