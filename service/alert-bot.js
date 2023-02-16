@@ -123,12 +123,14 @@ async function notifyNewValidator(validator) {
 async function notifyLowPerformanceValidator(moniker, performance, alert_status, discord_nickname, recovering_status) {
     let fields = [];
     let signal_recovering="<";
+    let isMencioned = true;
     let title_message="Validator performance is low.";
     if (recovering_status!=='undefined'){
         signal_recovering = recovering_status;
         if(recovering_status==='>'){
             title_message = "Validator is recovering."
             signal_recovering= "\u003E"
+            isMencioned = false;
         }
     }
     let ICON = `🔴`;
@@ -193,7 +195,7 @@ async function notifyRecoveryValidator(validator) {
         let discordID = formatUserMentionDiscord(discord_nickname);
         const json = JSON.stringify({
             "username": "Celestia Alert",
-            "content": `Mention: ${discordID}`,
+            "content": isMencioned ? true : `Mention: ${discordID}`,
             "embeds": [
                 {
                     "title": `✅ Validator was recovered!`,
@@ -355,10 +357,211 @@ function formatUserMentionDiscord(discord_user_id) {
     }
 }
 
+// PROPOSALS
+/*
+-> [✅] NotifyNewProposal(proposal): Notificar quando a proposta for nova;
+-> [✅] NotifyAceptedProposal(proposal): Notificar quando a proposta for aceita;
+-> [✅] NotifyRejectedProposal(proposal): Notificar quando a proposta for recusada;
+-> [✅] NotifyAbortedProposal(proposal): Notificar quando a proposta for abortada;
+-> [ ] notifyWithdrawalProposal(proposal): Notificar quando a proposta for retirada;
+*/
+
+
+async function notifyNewProposal(proposal){
+    console.log(`Notify new Proposal in Discord Bot: ${proposal.title}`);
+    const { id, title, description, status } = proposal;
+    let fields = [];
+
+    if(typeof id !== 'undefined'){
+        fields.push({
+            "name": "Number",
+            "value": `${id}`
+        });
+    };
+
+    if(typeof title !== 'undefined'){
+        fields.push({
+            "name": "Title",
+            "value": `${title}`
+        });
+    };
+
+    if(typeof description !== 'undefined'){
+        fields.push({
+            "name": "Description",
+            "value": `${description}`
+        });
+    };
+
+    if(typeof status !== 'undefined'){
+        fields.push({
+            "name": "Status",
+            "value": `${status}`
+        });
+    };
+
+
+    fields = removeInvalidCharacters(fields);
+
+    const json = JSON.stringify({
+        "username": "Celestia Alert",
+        "embeds": [
+            {
+                "title": "New Proposal!",
+                "description": "A new proposal was identified in Celestia Network",
+                "color": NOTIFY_COLOR_MESSAGE,
+                "fields": fields,
+                "thumbnail": {
+                    "url": "https://t3.ftcdn.net/jpg/00/90/20/08/240_F_90200846_rAoY6CMRSJ7X8gFJyzyXKYtvxQqK28Lk.jpg"
+                }
+            }
+        ]
+    })
+
+
+    await api.post("", json, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).catch(err => {
+        console.log(err);
+    })
+
+}
+
+async function notifyAceptedProposal(proposal){
+    const title = proposal.title;
+    const descriptionString = "```" + proposal.description + "```";
+    const json = JSON.stringify({
+        
+        "username": "Celestia Alert",
+        "embeds": [
+            {
+                "title": `🟢 Proposal Nº ${proposal.id} Accepted!`,
+                "color": NOTIFY_COLOR_MESSAGE,
+                "fields": [
+                    {
+                        "name": "Proposal Title",
+                        "value": `**${title.toUpperCase()}**`,
+
+                        "name": "Description",
+                        "value": `${descriptionString}`
+                    }
+                ]
+            }
+        ]
+    })
+    await api.post("", json, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).catch(err => {
+        console.log(err.message)
+    })
+}
+
+async function notifyRejectedProposal(proposal){
+    const title = proposal.title;
+    const descriptionString = "```" + proposal.description + "```";
+    const json = JSON.stringify({
+        
+        "username": "Celestia Alert",
+        "embeds": [
+            {
+                "title": `🔴 Proposal Nº ${proposal.id} Rejected!`,
+                "color": NOTIFY_COLOR_MESSAGE,
+                "fields": [
+                    {
+                        "name": "Proposal Title",
+                        "value": `**${title.toUpperCase()}**`,
+
+                        "name": "Description",
+                        "value": `${descriptionString}`
+                    }
+                ]
+            }
+        ]
+    })
+    await api.post("", json, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).catch(err => {
+        console.log(err.message)
+    })
+}
+
+async function notifyAbortedProposal(proposal){
+    const title = proposal.title;
+    const descriptionString = "```" + proposal.description + "```";
+    const json = JSON.stringify({
+        
+        "username": "Celestia Alert",
+        "embeds": [
+            {
+                "title": `❌ Proposal Nº ${proposal.id} Aborted!`,
+                "color": NOTIFY_COLOR_MESSAGE,
+                "fields": [
+                    {
+                        "name": "Proposal Title",
+                        "value": `**${title.toUpperCase()}**`,
+
+                        "name": "Description",
+                        "value": `${descriptionString}`
+                    }
+                ]
+            }
+        ]
+    })
+    await api.post("", json, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).catch(err => {
+        console.log(err.message)
+    })
+}
+
+async function notifyWithdrawalProposal(proposal){
+    const title = proposal.title;
+    const descriptionString = "```" + proposal.description + "```";
+    const json = JSON.stringify({
+        
+        "username": "Celestia Alert",
+        "embeds": [
+            {
+                "title": `❕ Proposal Nº ${proposal.id} Withdrawn!`,
+                "color": NOTIFY_COLOR_MESSAGE,
+                "fields": [
+                    {
+                        "name": "Proposal Title",
+                        "value": `**${title.toUpperCase()}**`,
+
+                        "name": "Description",
+                        "value": `${descriptionString}`
+                    }
+                ]
+            }
+        ]
+    })
+    await api.post("", json, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).catch(err => {
+        console.log(err.message)
+    })
+}
+
 module.exports = {
     notifyJailedValidator,
     notifyNewValidator,
     notifyChangeValidator,
     notifyLowPerformanceValidator,
-    notifyRecoveryValidator
+    notifyRecoveryValidator,
+    notifyNewProposal,
+    notifyAceptedProposal,
+    notifyRejectedProposal,
+    notifyAbortedProposal,
+    notifyWithdrawalProposal
 }

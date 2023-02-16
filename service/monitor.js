@@ -1,5 +1,6 @@
 const validatorServices = require('../service/ValidatorService');
 const { collectData, populateConsensusNodeAddress } = require('../service/collectValidatorsData');
+const { collectProposalsData } = require('../service/collectProposalsData');
 const { getSignaturesByLastHeight, persistSignatures } = require('../service/BlocksService');
 const commissionAnalysis = require("./change_analysis");
 const fs = require('fs');
@@ -25,6 +26,17 @@ setInterval(async () => {
         console.log("Finish collect data!!!")
         console.log("Start populate consensusNodeAddress!!!");
         populateConsensusNodeAddress().then(console.log("Finish populate consensusNodeAddress!!!"))
+    }).catch(err => {
+        console.log(err.message)
+    })
+    //updateCheckpointInDatabase();
+}, COLLECT_INFORMATION_VALIDATORS_INTERVAL * 1000);
+
+setInterval(async () => {
+    collectProposalsData().then(result => {
+        console.log("Finish collect proposals data!!!")
+        // console.log("Start populate consensusNodeAddress!!!");
+        // populateConsensusNodeAddress().then(console.log("Finish populate consensusNodeAddress!!!"))
     }).catch(err => {
         console.log(err.message)
     })

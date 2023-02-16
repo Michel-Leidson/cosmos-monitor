@@ -14,6 +14,7 @@ const client = new Client({
 });
 
 const ValidatorService = require('../service/ValidatorService');
+const ProposalService = require('../service/ProposalService');
 
 const WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE = process.env.WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE;
 const WEBSITE_LINK = process.env.WEBSITE_LINK
@@ -79,6 +80,81 @@ client.on("messageCreate", async message => {
         }
     }
 
+    if ( comando == "remove_nickname"){
+        if (args.length > 0) {
+            const validatorMoniker = args.join(" ").split(" ")[0];
+            console.log("Parameter:", validatorMoniker)
+
+            const validator = await ValidatorService.getValidatorByMoniker(validatorMoniker);
+            if (validator !== null) {
+                console.log("Validator moniker:", validator.moniker);
+                const mentions = message.mentions.users.map(mention => {
+                    return mention
+                })
+                const firstMentionID = mentions[0].id
+                console.log("Mention on Discord message:", firstMentionID)
+
+                // Se o id for igual o que já está, remover e salvar;
+                if(validator.discord_nickname === firstMentionID){
+                    validator.discord_nickname = null;
+                    validator.save()
+                    message.channel.send({
+                        content: `<@!${firstMentionID}> has been removed from the validator `
+                    })
+                }else{
+                    message.channel.send({
+                        content: `<@!${firstMentionID}> is not mentioned in this validator `
+                    })
+                }
+            } else {
+                message.channel.send({
+                    content: `Moniker ${validatorMoniker} not found!`
+                })
+            }
+        } else {
+            message.channel.send({
+                content: `You need typing validator moniker in $set_nickname command!`
+            })
+        }
+    }
+
+    if ( comando == "check_nickname"){
+        if (args.length > 0) {
+            const validatorMoniker = args.join(" ").split(" ")[0];
+            console.log("Parameter:", validatorMoniker)
+
+            const validator = await ValidatorService.getValidatorByMoniker(validatorMoniker);
+            if (validator !== null) {
+                console.log("Validator moniker:", validator.moniker);
+                // const mentions = message.mentions.users.map(mention => {
+                //     return mention
+                // })
+                // const firstMentionID = mentions[0].id
+                
+                // console.log("Mention on Discord message:", firstMentionID)
+
+                // Se o validador já tiver nickname, informar;
+                if(validator.discord_nickname){
+                    message.channel.send({
+                        content: `Moniker ${validatorMoniker} has nickname: <@${validator.discord_nickname}>`
+                    })
+                }else{
+                    message.channel.send({
+                        content: `Moniker ${validatorMoniker} has no nickname`
+                    })
+                }
+            } else {
+                message.channel.send({
+                    content: `Moniker ${validatorMoniker} not found!`
+                })
+            }
+        } else {
+            message.channel.send({
+                content: `You need typing validator moniker in $set_nickname command!`
+            })
+        }
+    }
+
     if (comando === "link") {
         if (args.length > 0) {
             const validatorIdentifier = args.join(" ");
@@ -111,7 +187,7 @@ client.on("messageCreate", async message => {
                     //setTimeout(() => msg.delete(), 60000)
                 })
             }
-        }
+        } 
     }
 
     if (comando === "missed") {
@@ -167,6 +243,72 @@ client.on("messageCreate", async message => {
             }
         }
     }
+
+    if (comando === "check_proposal"){
+        if (args.length > 0) {
+            const proposalIdentifier = args.join(" ");
+            console.log("Received proposal identifier", proposalIdentifier);
+
+            const mentions = message.mentions.users.map(mention => {
+                return mention
+            })
+            let proposal=null;
+            if (mentions.length > 0) {
+                const firstMentionID = mentions[0].id
+                proposal = await ProposalService.getProposalById(firstMentionID);
+            } else {
+                proposal = await ProposalService.getProposalById(proposalIdentifier);
+            }
+            if (proposal !== null) {
+                const { id, title, description, status } = proposal;
+                let statusIcon = '';
+                /*
+                PROPOSAL_STATUS_UNSPECIFIED: ❔
+                PROPOSAL_STATUS_SUBMITTED: 🕓️
+                PROPOSAL_STATUS_PASSED: 🟢
+                PROPOSAL_STATUS_REJECTED: 🔴
+                PROPOSAL_STATUS_ABORTED: ❌
+                PROPOSAL_STATUS_WITHDRAWN: ❕
+                */
+                if( status === "PROPOSAL_STATUS_UNSPECIFIED"){
+                    statusIcon = "UNSPECIFIED  ❔";
+                }
+                else if( status === "PROPOSAL_STATUS_SUBMITTED"){
+                    statusIcon = "SUBMITTED  🕓️";
+                }
+                else if( status === "PROPOSAL_STATUS_PASSED"){
+                    statusIcon = "PASSED  🟢";
+                }
+                else if( status === "PROPOSAL_STATUS_REJECTED"){
+                    statusIcon = "REJECTED  🔴";
+                }
+                else if( status === "PROPOSAL_STATUS_ABORTED"){
+                    statusIcon = "ABORTED  ❌";
+                }
+                else if( status === "PROPOSAL_STATUS_WITHDRAWN"){
+                    statusIcon = "WITHDRAW  ❕";
+                }
+                let formattedDescription = "**STATUS: **"+ statusIcon+  "\n \n" +"**DESCRIPTION: **" + "\n \n" + "``` " + description +" ```";
+                message.channel.send({
+                    embeds: [{
+                        title:`**Nº ${id}:** ${title}`,
+                        status: statusIcon,
+                        color: NOTIFY_COLOR_MESSAGE, 
+                        description: formattedDescription
+                    }]
+                }).then(msg => {
+                    //setTimeout(() => msg.delete(), 60000)
+                })
+            } else {
+                message.channel.send({
+                    content: `Proposal with id nº${validatorIdentifier} not found!`
+                }).then(msg => {
+                    //setTimeout(() => msg.delete(), 60000)
+                })
+            }
+        }
+
+    }
     if (comando === "status") {
         if (args.length > 0) {
             const validatorIdentifier = args.join(" ");console.log("Received validator identifier", validatorIdentifier);            
@@ -199,7 +341,7 @@ client.on("messageCreate", async message => {
                     color: NOTIFY_COLOR_MESSAGE,
                     fields: [{
                         name: "Performance:",
-                        value: `${performance.toFixed(2)}`
+                        value: `${performance.toFixed(2)}%`
                     },
                     {
                         name: "Missed Blocks",
@@ -207,15 +349,15 @@ client.on("messageCreate", async message => {
                     },
                     {
                         name: "Rate",
-                        value: `${rate}`
+                        value: `${rate/10000000000000000}%`
                     },
                     {
                         name: "Max Rate",
-                        value: `${max_rate}`
+                        value: `${max_rate/10000000000000000}%`
                     },
                     {
                         name: "Max Rate Change",
-                        value: `${max_change_rate}`
+                        value: `${max_change_rate/10000000000000000}%`
                     },
                     {
                         name: "Operator Address",
@@ -348,6 +490,67 @@ client.on("messageCreate", async message => {
         }
     }
 
+
+    if(comando === "proposal_status"){
+        const proposals = await ProposalService.getAllProposals();
+        console.log(proposals);
+         const fields = proposals.map(proposal => {
+             const {id, title, description, status} = proposal.dataValues;
+             let statusIcon = '';
+             /*
+             PROPOSAL_STATUS_UNSPECIFIED: ❔
+             PROPOSAL_STATUS_SUBMITTED: 🕓️
+             PROPOSAL_STATUS_PASSED: 🟢
+             PROPOSAL_STATUS_REJECTED: 🔴
+             PROPOSAL_STATUS_ABORTED: ❌
+             PROPOSAL_STATUS_WITHDRAWN: ❕
+             */
+             if( status === "PROPOSAL_STATUS_UNSPECIFIED"){
+                 statusIcon = "❔";
+             }
+             else if( status === "PROPOSAL_STATUS_SUBMITTED"){
+                 statusIcon = "🕓️";
+             }
+             else if( status === "PROPOSAL_STATUS_PASSED"){
+                 statusIcon = "🟢";
+             }
+             else if( status === "PROPOSAL_STATUS_REJECTED"){
+                 statusIcon = "🔴";
+             }
+             else if( status === "PROPOSAL_STATUS_ABORTED"){
+                 statusIcon = "❌";
+             }
+             else if( status === "PROPOSAL_STATUS_WITHDRAWN"){
+                 statusIcon = "❕";
+             }
+            
+             return {
+                 title: `**Nº ${id}:** ${title}`,
+                 statusIcon: statusIcon
+             }
+
+         })
+        //  console.log(fields);
+
+         if(fields.length > 0){
+             let notifySimpleNotifyMessage = "";
+
+             fields.map(field => {
+                 notifySimpleNotifyMessage = field.statusIcon + " " + field.title +"\n"
+             })
+
+             const exampleEmbed = {
+                 title: "All Proposals!",
+                 description: "This message is deleted after 60 seconds!!!\n\n" + notifySimpleNotifyMessage,
+                 color: NOTIFY_COLOR_MESSAGE,
+                 fields: []
+             }
+
+             message.channel.send({ embeds: [exampleEmbed] }).then(msg => {
+                 setTimeout(() => msg.delete(), 60000)
+             })
+         }
+    }
     if (comando === "help") {
         const exampleEmbed = {
             title: `Help Commands`,
@@ -381,7 +584,16 @@ client.on("messageCreate", async message => {
                 {
                     name: "$link <Validator Moniker>",
                     value: "This command returns the validator explorer link"
-                }]
+                },
+                {
+                    name: "$check_proposal <Proposal ID>",
+                    value: "This command returns complete proposal info"
+                },
+                {
+                    name: "$proposal_status",
+                    value: "This command returns summary all proposals info"
+                }
+            ]
         }
         console.log(exampleEmbed)
         try {
