@@ -156,6 +156,7 @@ client.on("messageCreate", async message => {
     }
 
     if (comando === "link") {
+        console.log("comando link")
         if (args.length > 0) {
             const validatorIdentifier = args.join(" ");
             console.log("Received validator identifier", validatorIdentifier);
@@ -187,7 +188,17 @@ client.on("messageCreate", async message => {
                     //setTimeout(() => msg.delete(), 60000)
                 })
             }
-        } 
+        } else {
+            message.channel.send({
+                embeds: [{
+                    title: `Wallet Nolus Website`,
+                    color: parseInt(process.env.HEXADECIMAL_COLOR),
+                    description: `${WEBSITE_LINK}`
+                }]
+            }).then(msg => {
+                //setTimeout(() => msg.delete(), 60000)
+            })
+        }
     }
 
     if (comando === "missed") {

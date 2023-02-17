@@ -248,7 +248,7 @@ async function notifyChangeValidator(validator, oldMoniker, changesCount, discor
         if (typeof rate !== 'undefined') {
             fields.push({
                 "name": "Rate",
-                "value": `${rate}`
+                "value": `${rate/10000000000000000}%`
             })
         }/*
         if (typeof changesCount !== 'undefined') {
