@@ -10,28 +10,28 @@ async function run(proposalInfo, proposalInDB ){
         const { status } = proposalInfo
 
         // NotifyAceptedProposal
-        if((oldProposalStatus === 'PROPOSAL_STATUS_UNSPECIFIED' || oldProposalStatus === 'PROPOSAL_STATUS_SUBMITTED') & status === 'PROPOSAL_STATUS_PASSED'){
+        if((oldProposalStatus === 'PROPOSAL_STATUS_UNSPECIFIED' || oldProposalStatus === 'PROPOSAL_STATUS_VOTING_PERIOD') & status === 'PROPOSAL_STATUS_PASSED'){
             notify.NotifyAceptedProposal(proposalInfo);
             proposalInDB.status = 'PROPOSAL_STATUS_PASSED';
             proposalInDB.save();
         }
 
         // NotifyRejectedProposal
-        if((oldProposalStatus === 'PROPOSAL_STATUS_UNSPECIFIED' || oldProposalStatus === 'PROPOSAL_STATUS_SUBMITTED') & status === 'PROPOSAL_STATUS_REJECTED'){
+        if((oldProposalStatus === 'PROPOSAL_STATUS_UNSPECIFIED' || oldProposalStatus === 'PROPOSAL_STATUS_VOTING_PERIOD') & status === 'PROPOSAL_STATUS_REJECTED'){
             notify.NotifyRejectedProposal(proposalInfo);
             proposalInDB.status = 'PROPOSAL_STATUS_REJECTED';
             proposalInDB.save();
         }
 
         // NotifyAbortedProposal
-        if((oldProposalStatus === 'PROPOSAL_STATUS_UNSPECIFIED' || oldProposalStatus === 'PROPOSAL_STATUS_SUBMITTED') & status === 'PROPOSAL_STATUS_ABORTED'){
+        if((oldProposalStatus === 'PROPOSAL_STATUS_UNSPECIFIED' || oldProposalStatus === 'PROPOSAL_STATUS_VOTING_PERIOD') & status === 'PROPOSAL_STATUS_ABORTED'){
             notify.NotifyAbortedProposal(proposalInfo);
             proposalInDB.status = 'PROPOSAL_STATUS_ABORTED';
             proposalInDB.save();
         }
 
         // notifyWithdrawalProposal
-        if((oldProposalStatus === 'PROPOSAL_STATUS_UNSPECIFIED' || oldProposalStatus === 'PROPOSAL_STATUS_SUBMITTED') & status === 'PROPOSAL_STATUS_WITHDRAWN'){
+        if((oldProposalStatus === 'PROPOSAL_STATUS_UNSPECIFIED' || oldProposalStatus === 'PROPOSAL_STATUS_VOTING_PERIOD') & status === 'PROPOSAL_STATUS_WITHDRAWN'){
             notify.notifyWithdrawalProposal(proposalInfo);
             proposalInDB.status = 'PROPOSAL_STATUS_WITHDRAWN';
             proposalInDB.save();
@@ -39,7 +39,7 @@ async function run(proposalInfo, proposalInDB ){
 
         /*
             PROPOSAL_STATUS_UNSPECIFIED: Valor referente a vazio.
-            PROPOSAL_STATUS_SUBMITTED: Valor quando a proposta for enviada para período de votação.
+            PROPOSAL_STATUS_VOTING_PERIOD: Valor quando a proposta for enviada para período de votação.
             PROPOSAL_STATUS_PASSED: Proposta aceita.
             PROPOSAL_STATUS_REJECTED: Proposata Recusada.
             PROPOSAL_STATUS_ABORTED: Proposta abortada.

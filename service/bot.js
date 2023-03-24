@@ -275,7 +275,7 @@ client.on("messageCreate", async message => {
                 let statusIcon = '';
                 /*
                 PROPOSAL_STATUS_UNSPECIFIED: ❔
-                PROPOSAL_STATUS_SUBMITTED: 🕓️
+                PROPOSAL_STATUS_VOTING_PERIOD: 🕓️
                 PROPOSAL_STATUS_PASSED: 🟢
                 PROPOSAL_STATUS_REJECTED: 🔴
                 PROPOSAL_STATUS_ABORTED: ❌
@@ -284,7 +284,7 @@ client.on("messageCreate", async message => {
                 if( status === "PROPOSAL_STATUS_UNSPECIFIED"){
                     statusIcon = "UNSPECIFIED  ❔";
                 }
-                else if( status === "PROPOSAL_STATUS_SUBMITTED"){
+                else if( status === "PROPOSAL_STATUS_VOTING_PERIOD"){
                     statusIcon = "SUBMITTED  🕓️";
                 }
                 else if( status === "PROPOSAL_STATUS_PASSED"){
@@ -510,7 +510,7 @@ client.on("messageCreate", async message => {
              let statusIcon = '';
              /*
              PROPOSAL_STATUS_UNSPECIFIED: ❔
-             PROPOSAL_STATUS_SUBMITTED: 🕓️
+             PROPOSAL_STATUS_VOTING_PERIOD: 🕓️
              PROPOSAL_STATUS_PASSED: 🟢
              PROPOSAL_STATUS_REJECTED: 🔴
              PROPOSAL_STATUS_ABORTED: ❌
@@ -519,7 +519,7 @@ client.on("messageCreate", async message => {
              if( status === "PROPOSAL_STATUS_UNSPECIFIED"){
                  statusIcon = "❔";
              }
-             else if( status === "PROPOSAL_STATUS_SUBMITTED"){
+             else if( status === "PROPOSAL_STATUS_VOTING_PERIOD"){
                  statusIcon = "🕓️";
              }
              else if( status === "PROPOSAL_STATUS_PASSED"){

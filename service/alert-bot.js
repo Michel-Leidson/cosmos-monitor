@@ -133,6 +133,7 @@ async function notifyLowPerformanceValidator(moniker, performance, alert_status,
             isMencioned = false;
         }
     }
+    
     let ICON = `🔴`;
     if (alert_status === '95' || alert_status === '90' || alert_status === '85') {
         ICON = `🟡`
