@@ -21,7 +21,9 @@ async function run(validatorInfo, validatorInDB) {
         let notifyMessage = {}
         const { status, address_key, moniker, website, identity, security_contact, details, rate,jailed } = validatorInfo;
 
-        
+        // true <-> 1
+        // false <-> 0
+        // SE o campo Jailed for true
         if(validatorInDB.jailed === true && validatorInDB.alert_status !==null && jailed === false){
             notify.notifyRecoveryValidator(validatorInDB)
             validatorInDB.jailed=false;
@@ -37,9 +39,11 @@ async function run(validatorInfo, validatorInDB) {
             validatorInDB.save()
         }
 
-        validatorInDB.jailed = jailed;
-        validatorInDB.save();
+        // validatorInDB.jailed = jailed;
+        // validatorInDB.save();
         
+
+        // Alteração do Status
         if (status !== validatorInDB.status) {
             console.log("Change Status detected!", status, validatorInDB.status)
             alert.moniker = true;

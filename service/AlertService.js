@@ -16,6 +16,8 @@ async function start() {
                 const performance = 100 - ((missed_blocks * 100) / WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE)
                 console.log(moniker, "Performance:", `${performance}%`, `Alert Status:${alert_status}`, `Recovering Status:${recovering_status}`,)
 
+
+                // se o status for diferente de 95, e a performance atual for igual a 93 ou 94, e o validador não estiver preso;
                 if (`${alert_status}` !== '95' && performance < 95 && performance >= 93 && jailed === false) {
 
                     let current_recovering_status;
@@ -37,6 +39,8 @@ async function start() {
                     validator.alert_status = '95'
                     validator.save()
                 }
+                // se o status for diferente de 95, e a performance atual for igual a 93 ou 94, e o validador não estiver preso;
+
                 if (`${alert_status}` !== '85' && performance <= 87 && performance >= 83 && jailed === false) {
                     let current_recovering_status;
                     if (alert_status !== null) {
