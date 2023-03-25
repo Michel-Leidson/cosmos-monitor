@@ -159,7 +159,7 @@ async function notifyLowPerformanceValidator(moniker, performance, alert_status,
         let discordID = formatUserMentionDiscord(discord_nickname);
         const json = JSON.stringify({
             "username": "Celestia Alert",
-            // "content": `Mention: ${discordID}`,
+            "content": isMencioned ? true : `Mention: ${discordID}`,
             "embeds": [
                 {
                     "title": `${ICON} ${title_message}`,
