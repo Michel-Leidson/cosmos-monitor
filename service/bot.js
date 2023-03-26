@@ -191,7 +191,7 @@ client.on("messageCreate", async message => {
         } else {
             message.channel.send({
                 embeds: [{
-                    title: `Wallet Nolus Website`,
+                    title: `Explorer`,
                     color: parseInt(process.env.HEXADECIMAL_COLOR),
                     description: `${WEBSITE_LINK}`
                 }]
