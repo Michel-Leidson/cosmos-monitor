@@ -142,7 +142,8 @@ async function run(validatorInfo, validatorInDB) {
             console.log("Notify Message:", notifyMessage)
             if(validatorInDB.status==='BOND_STATUS_BONDED'){
                 notify.notifyChangeValidator(notifyMessage,oldMoniker,changesCount, discord_nickname);
-                
+                validatorInDB.jailed=0;
+                validatorInDB.alert_status=null;
             }
             if(status==='BOND_STATUS_UNSPECIFIED'){
                 notify.notifyChangeValidator(notifyMessage,oldMoniker,changesCount,discord_nickname);
