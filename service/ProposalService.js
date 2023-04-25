@@ -3,10 +3,9 @@ const proposalAnalysis = require('./proposal-analysis');
 const notify = require('./alert-bot');
 
 
-async function createProposal({id, title, description, status}) {
+async function createProposal({id, title, type, description, status, votingStarts, votingEnds}) {
     try {
         await proposalsRepository.getProposalById(id).then(async result => {
-        console.log(result)
 
             if (result) {
                 proposalAnalysis.run({
@@ -22,8 +21,11 @@ async function createProposal({id, title, description, status}) {
                     await proposalsRepository.createProposal({
                         id,
                         title,
+                        type,
                         description,
-                        status
+                        status,
+                        votingStarts,
+                        votingEnds
                     });
                     notify.notifyNewProposal({
                         id,

@@ -3,12 +3,13 @@ const notify = require("../service/alert-bot");
 const CommissionChangeRepository = require('../repository/commissionChangeRepository');
 const Rawquery = require('../service/RawQuerys');
 async function run(validatorInfo, validatorInDB) {
-    //console.log("Collected validator Info:",validatorInfo.moniker);
-    //console.log("Database validator Info Info:",JSON.parse(JSON.stringify(validatorInDB)).moniker );
+    // console.log("Collected validator Info:",validatorInfo.moniker);
+    // console.log("Database validator Info Info:",JSON.parse(JSON.stringify(validatorInDB)).moniker );
     const oldMoniker = validatorInDB.moniker;
     let discord_nickname = validatorInDB.discord_nickname;
     let changesCount = 0;
     try {
+        // console.log('analisando blocos');
         let alert = {
             status: false,
             moniker: false,
@@ -21,13 +22,17 @@ async function run(validatorInfo, validatorInDB) {
         let notifyMessage = {}
         const { status, address_key, moniker, website, identity, security_contact, details, rate,jailed } = validatorInfo;
 
+        // console.log('Validator In DB: ' + validatorInDB.jailed);
+        // console.log('Validator DB Info: ' + validatorInDB.jailed);
         // true <-> 1
         // false <-> 0
         // SE o campo Jailed for true
-        if(validatorInDB.jailed === true && validatorInDB.alert_status !==null && jailed === false){
+        if(validatorInDB.jailed === true && jailed === false){
+            
             notify.notifyRecoveryValidator(validatorInDB)
             validatorInDB.jailed=false;
             validatorInDB.alert_status=null;
+            validatorInDB.status="BOND_STATUS_BONDED";
             validatorInDB.save()
         }
 
@@ -142,8 +147,8 @@ async function run(validatorInfo, validatorInDB) {
             console.log("Notify Message:", notifyMessage)
             if(validatorInDB.status==='BOND_STATUS_BONDED'){
                 notify.notifyChangeValidator(notifyMessage,oldMoniker,changesCount, discord_nickname);
-                validatorInDB.jailed=0;
-                validatorInDB.alert_status=null;
+                validatorInDB.jailed = 0;
+                validatorInDB.alert_status = null;
             }
             if(status==='BOND_STATUS_UNSPECIFIED'){
                 notify.notifyChangeValidator(notifyMessage,oldMoniker,changesCount,discord_nickname);
@@ -159,7 +164,7 @@ async function run(validatorInfo, validatorInDB) {
             validatorInDB.save();
         }
 
-
+        // console.log('Changes count: ', changesCount);
     } catch (err) {
         console.log("Error", err.message)
     }

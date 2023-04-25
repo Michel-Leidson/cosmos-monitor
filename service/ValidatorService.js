@@ -1,10 +1,10 @@
 const ValidatorRepository = require('../repository/validatorRepository');
-const notify = require('../service/alert-bot');
-const changeAnalysis = require('../service/change_analysis');
+const notify = require('./alert-bot');
+const changeAnalysis = require('./change_analysis');
 
 
 const WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE = parseInt(process.env.WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE);
-const JAILED_BLOCKS_LIMIT = WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE * 0.5;
+const JAILED_BLOCKS_LIMIT = WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE * 0.95;
 const RECOVERY_LIMIT = WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE * 0.05;
 
 console.log('WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE:',WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE)
@@ -46,17 +46,29 @@ async function getValidatorByMonikerOrDiscordNickname(validatorIdentifier) {
 
 async function updateBlocksMissedByConsensusNodeAddress(consensus_node_address, missed_blocks) {
     try {
+        // Através do endereço de consenso, ele busca o validador na tabela
         const validator = await getValidatorByConsensusNodeAddress(consensus_node_address);
+        // Se o validador realmente existir:
         if(validator){
+            // Separando as propiedades que serão utilizadas
             const { moniker,alert_status, missed_blocks , discord_nickname,status,jailed} = validator;
-            console.log(`[ ${moniker} ]`,"Missed blocks:",missed_blocks,"Alert status:",alert_status,"JAILED:",jailed)
-            if(alert_status!==null && alert_status!=='JAILED' && jailed === false && status==='BOND_STATUS_BONDED' && missed_blocks < RECOVERY_LIMIT){                
+            // console.log(`[ ${moniker} ]`,"Missed blocks:",missed_blocks,"Alert status:",alert_status,"JAILED:",jailed)
+            // console.log("é esse print!")
+            // Se o 'alert_status' for diferente de Null e de 'JAILED', e se o validador não estiver preso, e a quantidade de blocos perdida for menor do que 5%(1500 blocos) do limite de blocos(30000 blocos);
+            if(alert_status!==null && alert_status!=='JAILED' && jailed === false && status==='BOND_STATUS_BONDED' && missed_blocks < RECOVERY_LIMIT){   
+                         
                 notify.notifyRecoveryValidator({
                     moniker,
                     missed_blocks,
                     discord_nickname
                 });
                 validator.alert_status = null; 
+                validator.save();   
+            }
+            if(alert_status !== 'JAILED' && parseInt(missed_blocks) > JAILED_BLOCKS_LIMIT){
+                
+                notify.notifyJailedValidator(moniker,discord_nickname);
+                validator.alert_status = 'JAILED'; 
                 validator.save();   
             }            
         }
