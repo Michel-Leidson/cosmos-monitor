@@ -667,6 +667,10 @@ client.on("messageCreate", async message => {
                 {
                     name: "$proposal_status",
                     value: "This command returns summary all proposals info"
+                },
+                {
+                    name: "$consensus",
+                    value: "This command brings data about the state of the network"
                 }
             ]
         }
