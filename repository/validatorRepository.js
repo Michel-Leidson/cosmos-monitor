@@ -5,7 +5,7 @@ const Validator = require('../models/Validator');
 require('dotenv').config()
 
 const WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE = parseInt(process.env.WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE);
-const MAX_LIMIT_LOW_PERFORMANCE = WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE * 0.5;
+const MAX_LIMIT_LOW_PERFORMANCE = WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE * 0.95;
 const MIN_LIMIT_LOW_PERFORMANCE = WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE * 0.05;
 console.log('WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE:',WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE)
 
@@ -50,6 +50,7 @@ async function getLowPerformanceValidators() {
                     [Op.between]: [MIN_LIMIT_LOW_PERFORMANCE,MAX_LIMIT_LOW_PERFORMANCE]
                 }
             }
+
         });
 
         return resultQuery;

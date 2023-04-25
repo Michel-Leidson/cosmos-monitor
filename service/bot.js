@@ -15,6 +15,8 @@ const client = new Client({
 
 const ValidatorService = require('../service/ValidatorService');
 const ProposalService = require('../service/ProposalService');
+const ConsensusService = require('./ConsensusService');
+const { format, formatDistance } = require('date-fns');
 
 const WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE = process.env.WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE;
 const WEBSITE_LINK = process.env.WEBSITE_LINK
@@ -49,6 +51,7 @@ client.on("messageCreate", async message => {
         m.edit(`Pong! A Latência é ${m.createdTimestamp - message.createdTimestamp}ms.`);
     }
 
+    
     if (comando === "set_nickname") {
 
         if (args.length > 0) {
@@ -255,6 +258,56 @@ client.on("messageCreate", async message => {
         }
     }
 
+    if (comando === "consensus"){
+        let consensus_content =  await ConsensusService.getConsensus();
+        let counter = 1;
+        const fields = consensus_content.consensusData.map(validator => {
+            const {moniker, voting_power_perc, voted} = validator;
+            let status = '';
+            /*
+            PROPOSAL_STATUS_UNSPECIFIED: ❔
+            PROPOSAL_STATUS_VOTING_PERIOD: 🕓️
+            PROPOSAL_STATUS_PASSED: 🟢
+            PROPOSAL_STATUS_REJECTED: 🔴
+            PROPOSAL_STATUS_ABORTED: ❌
+            PROPOSAL_STATUS_WITHDRAWN: ❕
+            */
+            if( voted === 'nil-Vote'){
+                status =  ` 🔴 ${counter} | `;
+            }
+            else{
+                status = status + ` 🟢 ${counter} | `;
+            }
+            counter += 1;
+            return {
+                StatusIdentifier: status,
+                moniker: moniker,
+                voting_perc: voting_power_perc
+
+            }
+            
+        })
+
+        if(fields.length > 0){
+            let notifySimpleNotifyMessage = `Height: ${consensus_content.height} - Round: ${consensus_content.round} - Step: ${consensus_content.step}\n Online Validators: ${consensus_content.online_validators}/${consensus_content.total_validators}\n\n`;
+
+            fields.map(field => {
+                notifySimpleNotifyMessage += field.StatusIdentifier + "    " + field.moniker + "    " + field.voting_perc + "\n"
+            })
+
+            const exampleEmbed = {
+                title: "Arable Consensus",
+                description: "This message is deleted after 60 seconds!!!\n\n" + notifySimpleNotifyMessage,
+                color: NOTIFY_COLOR_MESSAGE,
+                fields: []
+            }
+
+            message.channel.send({ embeds: [exampleEmbed] }).then(msg => {
+                setTimeout(() => msg.delete(), 60000)
+            })
+        }
+    }
+
     if (comando === "check_proposal"){
         if (args.length > 0) {
             const proposalIdentifier = args.join(" ");
@@ -271,7 +324,19 @@ client.on("messageCreate", async message => {
                 proposal = await ProposalService.getProposalById(proposalIdentifier);
             }
             if (proposal !== null) {
-                const { id, title, description, status } = proposal;
+                const { id, type, title, description, status, votingStarts, votingEnds } = proposal;
+                
+                const formatedVotingStartsDate = format(new Date(votingStarts), 'PPPppp');
+                const formatedDistanceVotingStartsDateToNow = `** (${formatDistance(new Date(votingStarts), new Date())} ago)**`;
+                const formatedVotingEndsDate = format(new Date(votingEnds), 'PPPppp');
+                const formatedDistanceVotingEndsDateToNow = `** (${formatDistance(new Date(votingEnds), new Date())} ago)**`;
+                
+                function removeGMT(formatedDate){
+                    return formatedDate.replace('GMT-3', '');   
+                }
+
+                const finalFormatedVotingStartsDate = removeGMT(formatedVotingStartsDate) + formatedDistanceVotingStartsDateToNow;
+                const finalFormatedVotingEndsDate = removeGMT(formatedVotingEndsDate) + formatedDistanceVotingEndsDateToNow;
                 let statusIcon = '';
                 /*
                 PROPOSAL_STATUS_UNSPECIFIED: ❔
@@ -282,27 +347,27 @@ client.on("messageCreate", async message => {
                 PROPOSAL_STATUS_WITHDRAWN: ❕
                 */
                 if( status === "PROPOSAL_STATUS_UNSPECIFIED"){
-                    statusIcon = "UNSPECIFIED  ❔";
+                    statusIcon = "❔  Unspecified";
                 }
                 else if( status === "PROPOSAL_STATUS_VOTING_PERIOD"){
-                    statusIcon = "SUBMITTED  🕓️";
+                    statusIcon = "🕓️  Submitted";
                 }
                 else if( status === "PROPOSAL_STATUS_PASSED"){
-                    statusIcon = "PASSED  🟢";
+                    statusIcon = "🟢  Passed";
                 }
                 else if( status === "PROPOSAL_STATUS_REJECTED"){
-                    statusIcon = "REJECTED  🔴";
+                    statusIcon = "🔴  Rejected";
                 }
                 else if( status === "PROPOSAL_STATUS_ABORTED"){
-                    statusIcon = "ABORTED  ❌";
+                    statusIcon = "❌  Aborted";
                 }
                 else if( status === "PROPOSAL_STATUS_WITHDRAWN"){
-                    statusIcon = "WITHDRAW  ❕";
+                    statusIcon = "❕  Withdrawn";
                 }
-                let formattedDescription = "**STATUS: **"+ statusIcon+  "\n \n" +"**DESCRIPTION: **" + "\n \n" + "``` " + description +" ```";
+                let formattedDescription =  "**Proposal Type: **"+  "\n" + type + "\n\n" + "**Proposal Status: **"+  "\n" + statusIcon+  "\n\n" +"**Description: **" + "\n" +  description  + "\n\n" + "**Start of voting period: **" + "\n" + finalFormatedVotingStartsDate + "\n\n" + "**End of voting period: **" + "\n" + finalFormatedVotingEndsDate ;
                 message.channel.send({
                     embeds: [{
-                        title:`**Nº ${id}:** ${title}`,
+                        title:`**# ${id} | ** ${title}`,
                         status: statusIcon,
                         color: NOTIFY_COLOR_MESSAGE, 
                         description: formattedDescription
@@ -504,8 +569,8 @@ client.on("messageCreate", async message => {
 
     if(comando === "proposal_status"){
         const proposals = await ProposalService.getAllProposals();
-        console.log(proposals);
-         const fields = proposals.map(proposal => {
+        
+        const fields = proposals.map(proposal => {
              const {id, title, description, status} = proposal.dataValues;
              let statusIcon = '';
              /*
@@ -536,18 +601,17 @@ client.on("messageCreate", async message => {
              }
             
              return {
-                 title: `**Nº ${id}:** ${title}`,
+                 title: `**#${id} | ** ${title}`,
                  statusIcon: statusIcon
              }
 
          })
-        //  console.log(fields);
 
          if(fields.length > 0){
              let notifySimpleNotifyMessage = "";
 
              fields.map(field => {
-                 notifySimpleNotifyMessage = field.statusIcon + " " + field.title +"\n"
+                 notifySimpleNotifyMessage += field.statusIcon + " " + field.title +"\n\n"
              })
 
              const exampleEmbed = {

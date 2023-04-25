@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const DISCORD_URL_WEBHOOK = process.env.DISCORD_URL_WEBHOOK;
 const NOTIFY_COLOR_MESSAGE = process.env.NOTIFY_COLOR_MESSAGE;
+const BOT_NAME = process.env.BOT_NAME;
 
 console.log(process.env.DISCORD_URL_WEBHOOK, process.env.NOTIFY_COLOR_MESSAGE)
 const api = axios.create({
@@ -15,7 +16,7 @@ async function notifyJailedValidator(validatorMoniker, discord_nickname) {
     let discordID = formatUserMentionDiscord(discord_nickname);
     const json = JSON.stringify({
 
-        "username": "Celestia Alert",
+        "username": BOT_NAME,
         "content": `Mention: ${discordID}`,
         "embeds": [
             {
@@ -53,19 +54,19 @@ async function notifyNewValidator(validator) {
     if (typeof rate !== 'undefined') {
         fields.push({
             "name": "Rate",
-            "value": `${rate}`
+            "value": `${rate/10000000000000000}%`
         })
     }
     if (typeof max_rate !== 'undefined') {
         fields.push({
             "name": "Max Rate",
-            "value": `${max_rate}`
+            "value": `${max_rate/10000000000000000}%`
         })
     }
     if (typeof max_change_rate !== 'undefined') {
         fields.push({
             "name": "Max Rate Change",
-            "value": `${rate}`
+            "value": `${max_change_rate/10000000000000000}%`
         })
     }
 
@@ -97,11 +98,11 @@ async function notifyNewValidator(validator) {
     fields = removeInvalidCharacters(fields);
 
     const json = JSON.stringify({
-        "username": "Celestia Alert",
+        "username": BOT_NAME,
         "embeds": [
             {
                 "title": "New Validator!",
-                "description": "New validator was identified in Celestia Network",
+                "description": "New validator was identified in Arable Network",
                 "color": NOTIFY_COLOR_MESSAGE,
                 "fields": fields,
                 "thumbnail": {
@@ -121,6 +122,7 @@ async function notifyNewValidator(validator) {
 }
 
 async function notifyLowPerformanceValidator(moniker, performance, alert_status, discord_nickname, recovering_status) {
+    
     let fields = [];
     let signal_recovering="<";
     let isMencioned = true;
@@ -158,8 +160,8 @@ async function notifyLowPerformanceValidator(moniker, performance, alert_status,
         fields = removeInvalidCharacters(fields);
         let discordID = formatUserMentionDiscord(discord_nickname);
         const json = JSON.stringify({
-            "username": "Celestia Alert",
-            "content": isMencioned ? true : `Mention: ${discordID}`,
+            "username": BOT_NAME,
+            "content": isMencioned ? `Mention: ${discordID}` : '' ,
             "embeds": [
                 {
                     "title": `${ICON} ${title_message}`,
@@ -168,12 +170,14 @@ async function notifyLowPerformanceValidator(moniker, performance, alert_status,
                 }
             ]
         });
-
         await api.post("", json, {
             headers: {
                 'Content-Type': 'application/json'
             }
         })
+        console.log("<<<<<<<<<========>>>>>>>>>");
+        console.log("Notificação de performace!");
+        console.log("<<<<<<<<<========>>>>>>>>>");
     } catch {
 
     }
@@ -195,7 +199,7 @@ async function notifyRecoveryValidator(validator) {
         fields = removeInvalidCharacters(fields);
         let discordID = formatUserMentionDiscord(discord_nickname);
         const json = JSON.stringify({
-            "username": "Celestia Alert",
+            "username": BOT_NAME,
             "content": isMencioned ? true : `Mention: ${discordID}`,
             "embeds": [
                 {
@@ -314,7 +318,7 @@ async function notifyChangeValidator(validator, oldMoniker, changesCount, discor
         });
 
         const json = JSON.stringify({
-            "username": "Celestia Alert",
+            "username": BOT_NAME,
             "embeds": [
                 {
                     "title": stringMoniker,
@@ -405,11 +409,11 @@ async function notifyNewProposal(proposal){
     fields = removeInvalidCharacters(fields);
 
     const json = JSON.stringify({
-        "username": "Celestia Alert",
+        "username": BOT_NAME,
         "embeds": [
             {
                 "title": "New Proposal!",
-                "description": "A new proposal was identified in Celestia Network",
+                "description": "A new proposal was identified in Arable Network",
                 "color": NOTIFY_COLOR_MESSAGE,
                 "fields": fields,
                 "thumbnail": {
@@ -435,7 +439,7 @@ async function notifyAceptedProposal(proposal){
     const descriptionString = "```" + proposal.description + "```";
     const json = JSON.stringify({
         
-        "username": "Celestia Alert",
+        "username": BOT_NAME,
         "embeds": [
             {
                 "title": `🟢 Proposal Nº ${proposal.id} Accepted!`,
@@ -466,7 +470,7 @@ async function notifyRejectedProposal(proposal){
     const descriptionString = "```" + proposal.description + "```";
     const json = JSON.stringify({
         
-        "username": "Celestia Alert",
+        "username": BOT_NAME,
         "embeds": [
             {
                 "title": `🔴 Proposal Nº ${proposal.id} Rejected!`,
@@ -497,7 +501,7 @@ async function notifyAbortedProposal(proposal){
     const descriptionString = "```" + proposal.description + "```";
     const json = JSON.stringify({
         
-        "username": "Celestia Alert",
+        "username": BOT_NAME,
         "embeds": [
             {
                 "title": `❌ Proposal Nº ${proposal.id} Aborted!`,
@@ -528,7 +532,7 @@ async function notifyWithdrawalProposal(proposal){
     const descriptionString = "```" + proposal.description + "```";
     const json = JSON.stringify({
         
-        "username": "Celestia Alert",
+        "username": BOT_NAME,
         "embeds": [
             {
                 "title": `❕ Proposal Nº ${proposal.id} Withdrawn!`,

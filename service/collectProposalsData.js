@@ -12,10 +12,14 @@ async function collectProposalsData(){
         await proposalsData.proposals.map(proposal => {
             const id = proposal.proposalId;
             const title = proposal.content.title;
+            const type = proposal.content["@type"];
+            //@js-ignore
             const description = proposal.content.description;
             const status = proposal.status;
+            const votingStarts = proposal.votingStartTime;
+            const votingEnds = proposal.votingEndTime;
 
-            ProposalsService.createProposal({ id, title, description, status })
+            ProposalsService.createProposal({ id, title, description, status, type, votingStarts, votingEnds })
 
         })
     }catch(error){

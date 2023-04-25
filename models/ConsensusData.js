@@ -1,34 +1,34 @@
-const Sequelize = require('sequelize');
+const Sequelize = require('sequelize'); 
 const database = require('../db');
 
-const Proposal = database.define('proposal', {
+const Proposal = database.define('consensus_data', {
     id:{
         type: Sequelize.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
     },
-    title:{
+    moniker:{
         type: Sequelize.STRING,
         defaultValue: null,
     },
-    type:{
+    address:{
         type: Sequelize.STRING,
         defaultValue: null
     },
-    description:{
+    status:{
         type: Sequelize.STRING,
         defaultValue: null,
     },
-    status: {
-        type: Sequelize.STRING,
+    voting_power: {
+        type: Sequelize.NUMBER,
         defaultValue: null
     },
-    votingStarts: {
+    voting_power_perc: {
         type: Sequelize.STRING,
         defaultValue: null,
     },
-    votingEnds: {
+    voted: {
         type: Sequelize.STRING,
         defaultValue: null,
     }

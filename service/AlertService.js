@@ -1,4 +1,4 @@
-const validatorServices = require('../service/ValidatorService');
+const validatorServices = require('./ValidatorService');
 const { notifyLowPerformanceValidator } = require('./alert-bot');
 const ALERT_ANALISIS_INTERVAL_IN_SECONDS = 60;
 const WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE = parseInt(process.env.WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE);
@@ -7,8 +7,9 @@ require('dotenv');
 console.log('WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE:',WINDOW_BLOCKS_SIZE_FOR_CALCULATE_PERFORMANCE)
 
 async function start() {
-
+    console.log("Entrou no alertService!")
     setInterval(async () => {
+        // console.log("Começou um ciclo do AlertService!");
         try {
             const validators = await validatorServices.getLowPerformanceValidators();
             validators.map(validator => {
@@ -18,6 +19,7 @@ async function start() {
 
 
                 // se o status for diferente de 95, e a performance atual for igual a 93 ou 94, e o validador não estiver preso;
+                // console.log('Alert Service Condição dos 95%');
                 if (`${alert_status}` !== '95' && performance < 95 && performance >= 93 && jailed === false) {
 
                     let current_recovering_status;
@@ -34,6 +36,7 @@ async function start() {
                         current_recovering_status = "<"
                         validator.recovering_status = current_recovering_status
                     }
+                    
                     notifyLowPerformanceValidator(moniker, performance, '95', discord_nickname, current_recovering_status)
 
                     validator.alert_status = '95'
@@ -116,6 +119,82 @@ async function start() {
                     }
                     notifyLowPerformanceValidator(moniker, performance, '55', discord_nickname, current_recovering_status)
                     validator.alert_status = '55'
+                    validator.save()
+                }
+                if (`${alert_status}` !== '45' && performance <= 47 && performance >= 43 && jailed === false) {
+                    let current_recovering_status;
+                    if (alert_status !== null) {
+                        const alert_status_number = parseInt(alert_status);
+                        if (alert_status_number > performance) {
+                            current_recovering_status = "<"
+                            validator.recovering_status = current_recovering_status
+                        } else {
+                            current_recovering_status = ">"
+                            validator.recovering_status = current_recovering_status
+                        }
+                    } else {
+                        current_recovering_status = "<"
+                        validator.recovering_status = current_recovering_status
+                    }
+                    notifyLowPerformanceValidator(moniker, performance, '45', discord_nickname, current_recovering_status)
+                    validator.alert_status = '45'
+                    validator.save()
+                }
+                if (`${alert_status}` !== '35' && performance <= 37 && performance >= 33 && jailed === false) {
+                    let current_recovering_status;
+                    if (alert_status !== null) {
+                        const alert_status_number = parseInt(alert_status);
+                        if (alert_status_number > performance) {
+                            current_recovering_status = "<"
+                            validator.recovering_status = current_recovering_status
+                        } else {
+                            current_recovering_status = ">"
+                            validator.recovering_status = current_recovering_status
+                        }
+                    } else {
+                        current_recovering_status = "<"
+                        validator.recovering_status = current_recovering_status
+                    }
+                    notifyLowPerformanceValidator(moniker, performance, '35', discord_nickname, current_recovering_status)
+                    validator.alert_status = '35'
+                    validator.save()
+                }
+                if (`${alert_status}` !== '25' && performance <= 27 && performance >= 23 && jailed === false) {
+                    let current_recovering_status;
+                    if (alert_status !== null) {
+                        const alert_status_number = parseInt(alert_status);
+                        if (alert_status_number > performance) {
+                            current_recovering_status = "<"
+                            validator.recovering_status = current_recovering_status
+                        } else {
+                            current_recovering_status = ">"
+                            validator.recovering_status = current_recovering_status
+                        }
+                    } else {
+                        current_recovering_status = "<"
+                        validator.recovering_status = current_recovering_status
+                    }
+                    notifyLowPerformanceValidator(moniker, performance, '25', discord_nickname, current_recovering_status)
+                    validator.alert_status = '25'
+                    validator.save()
+                }
+                if (`${alert_status}` !== '15' && performance <= 17 && performance >= 13 && jailed === false) {
+                    let current_recovering_status;
+                    if (alert_status !== null) {
+                        const alert_status_number = parseInt(alert_status);
+                        if (alert_status_number > performance) {
+                            current_recovering_status = "<"
+                            validator.recovering_status = current_recovering_status
+                        } else {
+                            current_recovering_status = ">"
+                            validator.recovering_status = current_recovering_status
+                        }
+                    } else {
+                        current_recovering_status = "<"
+                        validator.recovering_status = current_recovering_status
+                    }
+                    notifyLowPerformanceValidator(moniker, performance, '15', discord_nickname, current_recovering_status)
+                    validator.alert_status = '15'
                     validator.save()
                 }
             })
