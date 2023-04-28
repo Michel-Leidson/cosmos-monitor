@@ -15,7 +15,6 @@ async function notifyJailedValidator(validatorMoniker, discord_nickname) {
     console.log(validatorMoniker)
     let discordID = formatUserMentionDiscord(discord_nickname);
     const json = JSON.stringify({
-
         "username": BOT_NAME,
         "content": `Mention: ${discordID}`,
         "embeds": [
@@ -162,6 +161,7 @@ async function notifyLowPerformanceValidator(moniker, performance, alert_status,
         const json = JSON.stringify({
             "username": BOT_NAME,
             "content": isMencioned ? `Mention: ${discordID}` : '' ,
+
             "embeds": [
                 {
                     "title": `${ICON} ${title_message}`,
@@ -200,7 +200,6 @@ async function notifyRecoveryValidator(validator) {
         let discordID = formatUserMentionDiscord(discord_nickname);
         const json = JSON.stringify({
             "username": BOT_NAME,
-            "content": isMencioned ? true : `Mention: ${discordID}`,
             "embeds": [
                 {
                     "title": `✅ Validator was recovered!`,
@@ -318,6 +317,7 @@ async function notifyChangeValidator(validator, oldMoniker, changesCount, discor
         });
 
         const json = JSON.stringify({
+
             "username": BOT_NAME,
             "embeds": [
                 {
@@ -409,6 +409,7 @@ async function notifyNewProposal(proposal){
     fields = removeInvalidCharacters(fields);
 
     const json = JSON.stringify({
+
         "username": BOT_NAME,
         "embeds": [
             {
@@ -438,8 +439,8 @@ async function notifyAceptedProposal(proposal){
     const title = proposal.title;
     const descriptionString = "```" + proposal.description + "```";
     const json = JSON.stringify({
-        
         "username": BOT_NAME,
+
         "embeds": [
             {
                 "title": `🟢 Proposal Nº ${proposal.id} Accepted!`,
@@ -469,7 +470,7 @@ async function notifyRejectedProposal(proposal){
     const title = proposal.title;
     const descriptionString = "```" + proposal.description + "```";
     const json = JSON.stringify({
-        
+
         "username": BOT_NAME,
         "embeds": [
             {
@@ -502,6 +503,7 @@ async function notifyAbortedProposal(proposal){
     const json = JSON.stringify({
         
         "username": BOT_NAME,
+
         "embeds": [
             {
                 "title": `❌ Proposal Nº ${proposal.id} Aborted!`,
