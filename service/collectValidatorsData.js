@@ -4,6 +4,7 @@ const axios = require('axios')
 const fs = require('fs');
 const path = require('path')
 let validatorsData;
+const REST_NETWORK_URL = process.env.REST_NETWORK_URL
 async function updateValidatorsAddressKey() {
     console.log("Update Signer key is running...")
     await getValidatorSignerKey().then(response => {
@@ -74,7 +75,7 @@ async function populateConsensusNodeAddress() {
         let validatorsConsensusNodeaddres = new Map();
 
         const api3 = axios.create({
-            baseURL: `https://rest.arable.stakepool.dev.br/cosmos/base/tendermint/v1beta1/validatorsets/latest?pagination.limit=300`
+            baseURL: `${REST_NETWORK_URL}/cosmos/base/tendermint/v1beta1/validatorsets/latest?pagination.limit=300`
         })
         const dataset = await api3.get();
 
@@ -86,7 +87,7 @@ async function populateConsensusNodeAddress() {
         
 
         const api = axios.create({
-            baseURL: `https://rest.arable.stakepool.dev.br/cosmos/staking/v1beta1/validators?pagination.limit=300`
+            baseURL: `${REST_NETWORK_URL}/cosmos/staking/v1beta1/validators?pagination.limit=300`
         })
         const { data } = await api.get()
         // console.log(data)
