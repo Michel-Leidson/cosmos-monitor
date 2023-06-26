@@ -653,6 +653,10 @@ client.on("messageCreate", async message => {
                     value: "Add your discord user for mentions in alerts"
                 },
                 {
+                    name: "$remove_nickname <Validator Moniker> @discord-user-mention",
+                    value: "Remove your discord user for mentions in alerts"
+                },
+                {
                     name: "$link",
                     value: "This command returns the explorer link"
                 },
