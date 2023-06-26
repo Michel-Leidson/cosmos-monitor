@@ -101,7 +101,7 @@ async function notifyNewValidator(validator) {
         "embeds": [
             {
                 "title": "New Validator!",
-                "description": "New validator was identified in Arable Network",
+                "description": "New validator was identified.",
                 "color": NOTIFY_COLOR_MESSAGE,
                 "fields": fields,
                 "thumbnail": {
@@ -414,7 +414,7 @@ async function notifyNewProposal(proposal){
         "embeds": [
             {
                 "title": "New Proposal!",
-                "description": "A new proposal was identified in Arable Network",
+                "description": "A new proposal was identified.",
                 "color": NOTIFY_COLOR_MESSAGE,
                 "fields": fields,
                 "thumbnail": {
